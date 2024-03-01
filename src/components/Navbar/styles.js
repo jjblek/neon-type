@@ -18,9 +18,9 @@ export default makeStyles((theme) => ({
         marginRight: 12,
         marginTop: 10,
         color: theme.palette.secondary.main,
-        animation: '$spin 4s linear infinite',         
+        //animation: '$spinR 4s linear infinite',         
     },
-    '@keyframes spin': {
+    '@keyframes spinR': {
         '0%': {             
             transform: 'rotate(0deg)', 
         }, 
@@ -31,7 +31,7 @@ export default makeStyles((theme) => ({
     colorIcons: {
         width: 30, 
         height: 30,
-        
+       
     },
     colorIcon: {
         fontSize: 10,
@@ -40,25 +40,31 @@ export default makeStyles((theme) => ({
         right: 15,
 
     },
-    colorStack: {
+    swatches: {
         display: 'flex',
         justifyContent: 'center',
-        position: 'absolute',
-        top: theme.spacing(6),
-        right: theme.spacing(5),
-        transform: 'translate(-50%, -50%)',
-        width: 40,
-        bgcolor: 'background.paper',
-        border: `2px solid ${theme.palette.primary.main}`,
-        boxShadow: 24,
+        padding: '12px',
+        flexWrap: 'wrap',
+      },
+    swatch: {
+        width: '24px',
+        height: '24px',
+        margin: '4px',
+        border: 'none',
+        padding: 0,
+        borderRadius: '4px',
+        cursor: 'pointer',
+        outline: 'none',
+      },
+    cursor: {
+        
     },
-    colorPicker: {
-        display: 'flex',
-        padding: '16px',
-        position: 'absolute',
-        top: '48%',
-        right: '0%',
-        transform: 'translate(-20%, -50%)',
-        width: 300,
+    neon: {
+        filter:`drop-shadow(0px 0px 2px ${theme.palette.primary.light})`,
+        textShadow: `0px 0px 16px ${theme.palette.primary.main}`,
+        '&:hover': {
+            textShadow: `0px 0px 24px ${theme.palette.primary.main}`,
+        },
     },
+      
 }));

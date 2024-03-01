@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import randomWords from 'random-words';
-import { Card, CardContent, CardActions, CardHeader, Box, IconButton, Typography, TextField, Hidden, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { MdPlayArrow, MdCancel, MdReplay, MdTimer, MdTimerOff } from 'react-icons/md';
+import { Card, CardContent, CardActions, CardHeader, Box, IconButton, Typography, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import { MdPlayArrow, MdCancel, MdReplay, MdTimer, MdTimerOff, MdInfo } from 'react-icons/md';
 import useStyles from './styles';
 //const TIME = [15, 30, 60, 120]
 const MINUTE = 60
 
-const Tester = () => {
+const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     
     const [words, setWords] = useState([])
     const [numWords, setNumWords] = useState(10)
@@ -21,7 +21,7 @@ const Tester = () => {
     const [status, setStatus] = useState("waiting")
     const [timeTaken, setTimeTaken] = useState(0)
     const [totalChar, setTotalChar] = useState(0)
-    const [hidden, setHidden] = useState(false)
+    const [showTimer, setShowTimer] = useState(true)
     const textInput = useRef(null)
     const classes = useStyles();
 
@@ -67,11 +67,10 @@ const Tester = () => {
         setStatus('initialized')
         
     }
-      
+
     function handleInput({keyCode, key}) {
-        if (keyCode === 13) { // enter
-            return handleRestart()
-          }
+        if (keyCode === 9) return // tab; do nothing
+        if (keyCode === 13) return handleRestart() // enter
         if (keyCode === 32) { // space bar 
             checkMatch()
             setCurrInput("")
@@ -79,9 +78,12 @@ const Tester = () => {
             setCurrCharIndex(-1)
         } 
         else if (keyCode === 8) { // backspace
+            if (currCharIndex > -1) {
             setCurrCharIndex(currCharIndex - 1)
             setCurrChar("")
+            } else return
         } 
+        
         else { // key
             setCurrCharIndex(currCharIndex + 1)
             setCurrChar(key)
@@ -103,16 +105,16 @@ const Tester = () => {
 
     function getCharClass(wordIdx, charIdx, char) {
         if (wordIdx === currWordIndex && charIdx === currCharIndex && currChar && status !== 'finished') {
-            
             if (char === currChar) {
-                return classes.success
-            } else { return classes.warning }
+                return `${classes.success} ${neonMode ? classes.neonSuccess : null}`
+            } 
+            else return `${classes.warning} ${neonMode ? classes.neonWarning : null}`
 
         } else if (wordIdx === currWordIndex && currCharIndex >= words[currWordIndex].length) { 
-            
-            return classes.warning 
+            return `${classes.warning} ${neonMode ? classes.neonWarning : null}`
         }
     }
+
     const handleChange = (e) => {
         setCurrInput(e.target.value)
         if (correct + incorrect === numWords) {
@@ -124,12 +126,14 @@ const Tester = () => {
         }
         
     }
+
     const handleRestart = () => {
         setCurrInput("")
         setCountDown(MINUTE)
         start()
         
     }
+    
     const handleCancel = () => {
         setCurrInput("")
         setCountDown(MINUTE)
@@ -137,161 +141,204 @@ const Tester = () => {
         setStatus('waiting')
         
     }
-    
-    return (
-        <Card>
-            <CardContent>
-            <CardHeader
-                avatar={
-                    <Box>
-                        {status !== 'waiting' &&
-                        <IconButton onClick={handleCancel}>
-                            <MdCancel/>
-                        </IconButton>
-                        }
-                    </Box>  
-                }
-                title="Typing Speed Test" titleTypographyProps={{className: classes.title}}
-                subheader="by jjblek" subheaderTypographyProps={{className: classes.subheader}} 
-                action={
-                    <Hidden smDown>
-                    <Box display={'flex'} alignItems={'center'}>
-                    
-                    {hidden ? (
-                        <IconButton aria-label="show timer" onClick={()=>setHidden(false)}>
-                            <MdTimerOff/>
-                        </IconButton>
-                        ) : (
-                        <IconButton aria-label="hide timer" onClick={()=>setHidden(true)}>
-                            <MdTimer/>
-                        </IconButton> 
-                        )
-                    }
-                    </Box>
-                    </Hidden>
-                }
-            />
-            {(status === 'initialized' || status === 'started') && (
-                
-                <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
-                    
-                    <Box display={'flex'} justifyContent={'center'}> 
-                        {!hidden && 
-                            <Typography variant='h2' color='primary' fontWeight={'bold'}>
-                                {countDown}
-                            </Typography>
-                        }
-                    </Box>
-                        <Box mb={2}>
-                        <TextField className={classes.textField} hiddenLabel
-                        label='Start Typing' aria-label='Enter to Restart'
-                        helperText={
-                            <Typography 
-                                variant="caption" 
-                                className={classes.centerText}
-                                display="block">
-                                Press Enter to Restart
-                            </Typography>
-                         }
-                        InputLabelProps={{
-                            style: { fontSize: 12, },
-                        }} 
-                        inputProps={{
-                            
-                            style: {
-                                fontSize: 20,
-                                fontWeight: 'bold',
-                                textAlign: 'center',
-                            },
-                            autoComplete: 'off',
-                        }} 
-                        color='primary' autoFocus variant="standard"
-                        inputRef={textInput} value={currInput}
-                        onInput={()=> setStatus('started')} onKeyDown={handleInput} onChange={handleChange}>
-                        </TextField>
-                    </Box>
-                    
-                    <Typography variant='h6' color='secondary' maxWidth={850} mb={5}>
-                        {words.map((word, i) => (
-                        <span key={i}>
-                            <span>
-                            {word.split("").map((char, idx) => (
-                                <span className={getCharClass(i, idx, char)} key={idx}>{char}</span>
-                            ))}
-                            </span>
-                            <span> </span>
-                        </span>
-                        ))}
-                    </Typography>    
-                </Box>
-            )}
-            
-            {status === 'finished' && (
-                
-                <Box textAlign={'center'}>
-                    
-                    <Typography variant='h5' color='secondary' fontWeight={'normal'}>WPM:{' '}
-                        <Typography className={classes.inline} variant='inherit' color='primary' fontWeight={'bold'}>
-                            {Math.round( ((totalChar/5) - incorrect) / (timeTaken/60) )}
-                        </Typography>
-                    </Typography>
-        
-                    <Typography variant='h6' color='secondary' fontWeight={'normal'}>Accuracy:{' '} 
-                    {correct !== 0 ? (
-                        <Typography className={classes.inline} variant='inherit' color='primary' fontWeight={'bold'}>
-                            {Math.round((correct / (correct + incorrect)) * 100)}%
-                        </Typography>
-                    ) : (
-                        <Typography className={classes.inline} variant='inherit' color='red' fontWeight={'bold'}>0%</Typography>
-                    )}
-                    </Typography>
-                    <Typography variant='caption' color='primary' fontWeight={'bold'} fontSize={10}>Tab + Enter to Restart</Typography>
-                </Box>
-               
-            )}
-            
-            <CardActions disableSpacing>
-            
-                <Box ml={2}>
-                {status === 'waiting' ? (
-                    <IconButton aria-label="Play" onClick={start}>
-                        <MdPlayArrow/>
-                    </IconButton>
-                    ) : (
-                    <IconButton aria-label="Replay" onClick={handleRestart}>
-                        <MdReplay/>
-                    </IconButton>
-                )}
-                </Box>
 
-                <Box ml={'auto'}>
-                {(status === 'initialized' || status === 'started') && (
-                
-                <ToggleButtonGroup
-                        value={numWords} color='primary'
-                        exclusive
-                        onChange={(e, value) => setNumWords(value)}
-                        aria-label="word select">
-                        <ToggleButton value={10} aria-label="10 words" size='large'>
-                            <Typography fontSize={12} fontWeight={'bold'}>10</Typography>
-                        </ToggleButton>
-                        <ToggleButton value={25} aria-label="25 words" size='large'>
-                        <Typography fontSize={12} fontWeight={'bold'}>25</Typography>
-                        </ToggleButton>
-                        <ToggleButton value={50} aria-label="50 words" size='large'>
-                        <Typography fontSize={12} fontWeight={'bold'}>50</Typography>
-                        </ToggleButton>
-                        <ToggleButton value={75} aria-label="100 words" size='large'>
-                        <Typography fontSize={12} fontWeight={'bold'}>75</Typography>
-                        </ToggleButton>
-                    </ToggleButtonGroup>)}
-                </Box>
+    const handleWords = (event, value) => {
+        if (value !== null) setNumWords(value)
+        
+    }
+
+    return (
+        <Card variant='elevation'>
+            <CardContent>
+                <CardHeader
+                    title="Typing Speed Test" 
+                    titleTypographyProps={{
+                        className: neonMode ? classes.neon : null,
+                        color: neonMode ? 'primary.light' : 'primary.main',
+                        fontWeight: 'bold'
+                    }}
+                    subheader="by jjblek" 
+                    subheaderTypographyProps={{className: classes.subheader}} 
+                    avatar={
+                        <Box>
+                            {status !== 'waiting' ?
+                                <IconButton onClick={handleCancel}>
+                                    <MdCancel/>
+                                </IconButton>
+                                : null
+                            }
+                        </Box>  
+                    }
+                    action={
+                        (status === 'initialized' || status === 'started') ?
+                            <Box display={'flex'} alignItems={'center'}>
+                                {showTimer ? 
+                                    <IconButton aria-label="hide timer" onClick={()=>setShowTimer(false)}>
+                                        <MdTimer/>
+                                    </IconButton> 
+                                    : 
+                                    <IconButton aria-label="show timer" onClick={()=>setShowTimer(true)}>
+                                        <MdTimerOff/>
+                                    </IconButton>
+                                }
+                            </Box> 
+                        : null
+                    }
+                />
+
+                {(status === 'initialized' || status === 'started') ?
+                    
+                    <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
+                        
+                        <Box display={'flex'} justifyContent={'center'}> 
+                            {showTimer ?
+                                <Typography 
+                                    className={neonMode ? classes.neon : null} 
+                                    color={neonMode ? 'primary.light' : 'primary.main'} 
+                                    variant='h2' fontWeight={'bold'}>
+                                    {countDown}
+                                </Typography> 
+                            : null
+                            }
+                        </Box>
+
+                        <Box mb={2}>
+                            <TextField label='Start Typing' aria-label='Enter to Restart'
+                                inputRef={textInput} value={currInput}
+                                onInput={()=> setStatus('started')} onKeyDown={handleInput} onChange={handleChange}
+                                className={classes.textField} autoFocus variant="standard"
+                                InputLabelProps={{style: { fontSize: 14 },}}
+                                inputProps={{style: {textAlign: 'center',}}}
+                                helperText={
+                                    <Typography 
+                                        color={neonMode ? 'primary.light' : 'primary.main'} 
+                                        textAlign={'center'}
+                                        variant="caption" 
+                                        className={neonMode ? classes.neon : null}
+                                        display="block">
+                                        Press Enter to Restart
+                                    </Typography>
+                                }
+                                InputProps={{className: neonMode ? classes.neon : null,
+                                    style: {
+                                        color: neonMode ? 'primary.light' : 'primary.main',
+                                        fontSize: 20,
+                                        fontWeight: 'bold',
+                                        textAlign: 'center',
+                                    },
+                                    autoComplete: 'off',
+                                }}>
+                            </TextField>
+                        </Box>
+                        
+                        <Typography variant='h6' fontWeight={'bold'} color='secondary' maxWidth={850} mb={5}>
+                            
+                            {words.map((word, i) => (
+                                <span key={i}>
+                                    
+                                        {word.split("").map((char, idx) => (
+                                            <span className={getCharClass(i, idx, char)} key={idx}>
+                                                {char} 
+                                            </span>
+                                        ))}
+                                    
+                                    <span> </span>
+                                </span>
+                            ))}
+                        </Typography> 
+                        
+                    </Box>
+                    : null
+                }
             
-            </CardActions>
+                {status === 'finished' ? 
+                    <Box textAlign={'center'}>
+                        
+                        <Typography variant='h5' color='secondary' fontWeight='normal'>
+                            WPM:{' '}
+                            <Typography display='inline' variant='inherit' color='primary' fontWeight={'bold'}>
+                                {Math.round(((totalChar / 5) - incorrect) / (timeTaken / 60))}
+                            </Typography>
+                        </Typography>
+            
+                        <Typography variant='h6' color='secondary' fontWeight='normal'>
+                            Accuracy:{' '} 
+                            {correct !== 0 ?
+                                <Typography display='inline' variant='inherit' color='primary' fontWeight={'bold'}>
+                                    {Math.round((correct / (correct + incorrect)) * 100)}%
+                                </Typography>
+                                : 
+                                <Typography display='inline' variant='inherit' color='red' fontWeight={'bold'}>
+                                    0%
+                                </Typography>
+                            }
+                        </Typography>
+
+                        <Typography className={neonMode ? classes.neon : null} 
+                            color={neonMode ? 'primary.light' : 'primary.main'} 
+                            variant='caption' fontWeight={'bold'} fontSize={10}>
+                            Tab + Enter to Restart
+                        </Typography>
+
+                    </Box>
+                    : null
+                }
+            
+                <CardActions disableSpacing>
+                
+                    <Box ml={1}>
+                        {status === 'waiting' ?
+                            <IconButton aria-label="Play" onClick={start}>
+                                <MdPlayArrow/>
+                            </IconButton>
+                            : 
+                            <IconButton aria-label="Replay" onClick={handleRestart}>
+                                <MdReplay/>
+                            </IconButton>
+                        }
+                    </Box>
+                    
+                    <Box ml={'auto'}>
+                        {(status === 'initialized' || status === 'started') ? 
+                            <ToggleButtonGroup
+                                value={numWords} defaultValue={10} exclusive onChange={handleWords}
+                                aria-label="word count select" color='primary'>
+                                
+                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={10} aria-label="10 words" size='large'>
+                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
+                                        10
+                                    </Typography>
+                                </ToggleButton>
+
+                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={25} aria-label="25 words" size='large'>
+                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
+                                        25
+                                    </Typography>
+                                </ToggleButton>
+
+                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={50} aria-label="50 words" size='large'>
+                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
+                                        50
+                                    </Typography>
+                                </ToggleButton>
+
+                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={75} aria-label="100 words" size='large'>
+                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
+                                        75
+                                    </Typography>
+                                </ToggleButton>
+
+                            </ToggleButtonGroup>
+                            : null
+                        }
+                        <Box display={'inline'} ml={2}>
+                        <IconButton onClick={()=>setShowInfo(!showInfo)}><MdInfo/></IconButton>
+                        </Box>
+                    </Box>
+                
+                </CardActions>
             </CardContent>
         </Card>
-
     )
 }
-
 export default Tester

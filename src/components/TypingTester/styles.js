@@ -7,7 +7,7 @@ export default makeStyles((theme) => ({
         color: theme.palette.primary.main,
         }, 
     },
-    title: { // card title
+    text: { // card title
         color: theme.palette.primary.main,
     },
     subheader: { // card subheader
@@ -32,6 +32,7 @@ export default makeStyles((theme) => ({
     },
 
     neon: {
+        color: theme.palette.primary.main,
         filter:`drop-shadow(1px 1px 2px ${theme.palette.primary.light})`,
         textShadow: `0px 0px 16px ${theme.palette.primary.main}`,
         '&:hover': {
@@ -56,10 +57,11 @@ export default makeStyles((theme) => ({
         }
     },
     blink: {
-        transition: 'left 0.1s ease',
-        marginLeft: '-3.29165px',
+        animation: '$blinking 1s ease-in-out 0s infinite alternate'
+    },
+    cursor: {
         position: 'absolute',
-        animation: '$blinking 1.5s infinite 1s'
+        opacity: '75%'
     },
     '@keyframes blinking': {
         '50%': {             
@@ -69,4 +71,5 @@ export default makeStyles((theme) => ({
             opacity: 1,  
         },
     },
+
 }));

@@ -8,14 +8,14 @@ const MINUTE = 60
 
 const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     
+    const [randWords, setRandWords] = useState([])
     const [words, setWords] = useState([])
     const [numWords, setNumWords] = useState(10)
-
+    const [inputStack, setInputStack] = useState([])
     const [countDown, setCountDown] = useState(MINUTE)
     const [currInput, setCurrInput] = useState("")
     const [currWordIndex, setCurrWordIndex] = useState(0)
-    const [currCharIndex, setCurrCharIndex] = useState(-1)
-    const [currChar, setCurrChar] = useState("")
+    const [currCharIndex, setCurrCharIndex] = useState(null)
     const [correct, setCorrect] = useState(0)
     const [incorrect, setIncorrect] = useState(0)
     const [status, setStatus] = useState("waiting")
@@ -25,10 +25,17 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     const textInput = useRef(null)
     const classes = useStyles();
 
+    // on number of words update
     useEffect(() => {
-        setWords(generateWords(numWords))
+        setRandWords(generateRandomWords(numWords))
     }, [numWords])
 
+    // on random words update
+    useEffect(() => {
+        setWords(generateWordArray(randWords))
+    }, [randWords])
+
+    // on typing status update
     useEffect(() => {
         if (status === 'started') {
             textInput.current.focus()
@@ -51,72 +58,139 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     }, [status])
 
 
-    function generateWords(num) {
+    function generateRandomWords(num) {
         return new Array(num).fill(null).map(() => randomWords())
     }
 
+    function generateWordArray(randWords) {
+        
+        const wordArray = randWords.map((word) => {
+    
+            return {
+                isCorrect: false,
+                characters: Array.from(word).map((char) => ({ char, correct: 0 })),
+            };
+        });
+    
+        // Use the newArrays as needed, for example, you can log it
+        return wordArray;
+    }
 
+    // initialize start typing
     function start() {
-        setWords(generateWords(numWords))
+        setRandWords(generateRandomWords(numWords))
         setCurrWordIndex(0)
         setCorrect(0)
         setIncorrect(0)
-        setCurrCharIndex(-1)
-        setCurrChar("")
+        setCurrCharIndex(0)
         setTotalChar(0)
+        setInputStack([])
+        setCurrInput("")
         setStatus('initialized')
-        
     }
 
     function handleInput({keyCode, key}) {
         if (keyCode === 9) return // tab; do nothing
         if (keyCode === 13) return handleRestart() // enter
+        
         if (keyCode === 32) { // space bar 
-            checkMatch()
-            setCurrInput("")
-            setCurrWordIndex(currWordIndex + 1)
-            setCurrCharIndex(-1)
+            if (currCharIndex === 0) return
+            // if current character index is shorter than word
+            else if (currCharIndex < words[currWordIndex].characters.length) {
+                // increment character index
+                const updatedWords = [...words]
+                updatedWords[currWordIndex].isCorrect = false
+                setWords(updatedWords)
+                // TODO
+                const stack = [...inputStack]
+                
+                stack[currWordIndex] = currInput.trim()
+                setInputStack(stack)
+                
+                setCurrWordIndex(currWordIndex + 1)
+                setCurrCharIndex(0)
+                setCurrInput("")
+                setIncorrect(incorrect + 1)
+            } 
+            // if current character index is equal to word
+            else if (currCharIndex === words[currWordIndex].characters.length) {
+                // check if it is a match
+                if (randWords[currWordIndex] === currInput.trim()) {
+                    // increment word index if match
+                    
+                    const updatedWords = [...words]
+                    updatedWords[currWordIndex].isCorrect = true
+                    setWords(updatedWords)
+
+                    const stack = [...inputStack]
+                    stack[currWordIndex] = currInput.trim()
+                    setInputStack(stack)
+                    
+                    setCorrect(correct + 1)
+                    setTotalChar(totalChar + currCharIndex + 2)
+                    setCurrWordIndex(currWordIndex + 1)
+                    setCurrInput("")
+                    setCurrCharIndex(0)
+
+                } 
+                // if it is not a match, increment character index
+                else setCurrCharIndex(currCharIndex+1)
+                
+            }
+            else setCurrCharIndex(currCharIndex + 1)
+            
         } 
         else if (keyCode === 8) { // backspace
-            if (currCharIndex > -1) {
-            setCurrCharIndex(currCharIndex - 1)
-            setCurrChar("")
-            } else return
+            if (currCharIndex > 0) {
+                if (currCharIndex > words[currWordIndex].characters.length) {
+                    setCurrCharIndex(currCharIndex - 1)
+                
+                }
+                else {
+                    const updatedHighlight = [...words];
+                    updatedHighlight[currWordIndex].characters[currCharIndex-1].correct = 0;
+                    setWords(updatedHighlight);
+                
+                    setCurrCharIndex(currCharIndex - 1)
+                    
+                }
+                
+            } else { // TODO 
+                if (currWordIndex > 0 && words[currWordIndex-1].isCorrect === false) {
+                    
+                    setCurrInput(inputStack[currWordIndex-1])
+                    
+                    setCurrCharIndex(inputStack[currWordIndex - 1].length-1)
+                    
+                    
+                    setCurrWordIndex(currWordIndex - 1)
+                    setIncorrect(incorrect-1)
+                }
+                
+            }
+            
         } 
         
         else { // key
-            setCurrCharIndex(currCharIndex + 1)
-            setCurrChar(key)
-        }
-        
-    }
-
-    function checkMatch() {
-        const wordToCompare = words[currWordIndex]
-        const doesItMatch = wordToCompare === currInput.trim()
-        if (doesItMatch) {
-            setCorrect(correct + 1)
-            setTotalChar(totalChar + currCharIndex + 2)
+            if (currCharIndex >= words[currWordIndex].characters.length) {
+                setCurrCharIndex(currCharIndex + 1)
+            }
+            else {
+                const updatedHighlight = [...words];
+                const doesItMatch = words[currWordIndex].characters[currCharIndex].char === key;
+                updatedHighlight[currWordIndex].characters[currCharIndex].correct = doesItMatch ? 1 : -1;
+                setWords(updatedHighlight);
+                
+                setCurrCharIndex(currCharIndex+1)
+            }
             
         }
-        else setIncorrect(incorrect + 1)
         
-    }
-
-    function getCharClass(wordIdx, charIdx, char) {
-        if (wordIdx === currWordIndex && charIdx === currCharIndex && currChar && status !== 'finished') {
-            if (char === currChar) {
-                return `${classes.success} ${neonMode ? classes.neonSuccess : null}`
-            } 
-            else return `${classes.warning} ${neonMode ? classes.neonWarning : null}`
-
-        } else if (wordIdx === currWordIndex && currCharIndex >= words[currWordIndex].length) { 
-            return `${classes.warning} ${neonMode ? classes.neonWarning : null}`
-        }
     }
 
     const handleChange = (e) => {
         setCurrInput(e.target.value)
+        
         if (correct + incorrect === numWords) {
             if (incorrect === numWords) {
                 setIncorrect(0)
@@ -124,7 +198,7 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
             setTimeTaken(MINUTE - countDown)
             setStatus('finished')
         }
-        
+    
     }
 
     const handleRestart = () => {
@@ -185,7 +259,13 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
                         : null
                     }
                 />
-
+                {status === 'waiting' ? 
+                <Box height={'125px'} textAlign={'center'}>
+                    <Typography variant='h5' marginTop={'75px'} >
+                        
+                        Welcome to <span color='primary.main' className={neonMode ? classes.neon : classes.text}> NeonType</span>, click play to start typing!
+                    </Typography>
+                </Box> : null}
                 {(status === 'initialized' || status === 'started') ?
                     
                     <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
@@ -227,26 +307,42 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
                                         textAlign: 'center',
                                     },
                                     autoComplete: 'off',
+                                    autoFocus: true
                                 }}>
                             </TextField>
                         </Box>
-                        
-                        <Typography variant='h6' fontWeight={'bold'} color='secondary' maxWidth={850} mb={5}>
-                            
-                            {words.map((word, i) => (
-                                <span key={i}>
+                        <Box maxWidth={'800px'} >
+                        <Typography variant='h6' color='secondary' mb={5} letterSpacing={'1.3px'}>
+                            {words.map((word, wordIndex) => (
+                                <span key={wordIndex} style={{ display: 'inline-block' }}>
+                                    {word.characters.map((characterArray, charIndex) => (
+                                        <span style={{ display: 'inline-block' }}
+                                            key={charIndex}
+                                            className={characterArray.correct === 1 ? `${classes.success} ${neonMode && classes.neonSuccess}` : (characterArray.correct === -1 ? `${classes.warning} ${neonMode && classes.neonWarning}` : '')}
+                                        >
+                                            {currCharIndex === charIndex && currWordIndex === wordIndex && <span className={`${classes.cursor} ${currCharIndex === 0 && currWordIndex === 0 && classes.blink}`}>|</span>}
+                                            {characterArray.char}
+                                            
+                                        </span>
+                                        
+                                    ))}
                                     
-                                        {word.split("").map((char, idx) => (
-                                            <span className={getCharClass(i, idx, char)} key={idx}>
-                                                {char} 
-                                            </span>
-                                        ))}
-                                    
-                                    <span> </span>
+                                    {currWordIndex === wordIndex && currCharIndex > word.characters.length && (
+                                    <span >
+                                    {currInput.slice(word.characters.length, currCharIndex).split('').map((incorrectChar, i) => (
+                                        <span key={i} className={`${classes.warning} ${neonMode && classes.neonWarning}`}>
+                                            {incorrectChar}
+                                        </span>
+                                    ))}
+                                        <span className={classes.cursor}>|</span>
+                                    </span>
+                                    )}
+                                    {currWordIndex === wordIndex && currCharIndex === word.characters.length && <span className={`${classes.cursor} ${currCharIndex === 0 && currWordIndex === 0 && classes.blink}`}>|</span>}
+                                    {'\u00A0'}
                                 </span>
                             ))}
-                        </Typography> 
-                        
+                        </Typography>
+                    </Box>
                     </Box>
                     : null
                 }

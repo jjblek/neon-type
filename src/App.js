@@ -8,13 +8,13 @@ import "@fontsource/sacramento";
 import { useDebounce } from 'use-debounce';
 const Navbar = lazy(() => import('./components/Navbar/Navbar'));
 const Tester = lazy(() => import('./components/TypingTester/Tester'));
-const Info = lazy(() => import ('./components/Info/Info'))
+const Info = lazy(() => import ('./components/Info/Info'));
 
 
 const renderLoader = () => <Typography position={'absolute'} right={'50%'} top={'20%'}>loading . . .</Typography>;
 
 function App() {
-  
+
     const [darkMode, setDarkMode] = useState(localStorage.getItem('darkMode')==='true');
     const [primaryColor, setPrimaryColor] = useState(localStorage.getItem('color')===null ? '#7e57c2' : localStorage.getItem('color'))
     const [invertedColor, setInvertedColor] = useState(invertColor(localStorage.getItem('color')===null ? '#7e57c2' : localStorage.getItem('color')))
@@ -87,7 +87,7 @@ function App() {
         var zeros = new Array(len).join('0');
         return (zeros + str).slice(-len);
     }
-      
+    
     // mode theme: light
     const light = {
         palette: {
@@ -167,9 +167,9 @@ function App() {
         },
         
     });
-  return (
+    return (
     <ThemeProvider theme={responsiveFontSizes(theme)}>
-      <CssBaseline enableColorScheme/>
+        <CssBaseline enableColorScheme/>
         <div>
         <Suspense fallback={renderLoader()}>
             <Navbar toggleDark={toggleDark} darkMode={darkMode} primaryColor={primaryColor} toggleColor={toggleColor} newShade={newShade} neonMode={neonMode} toggleNeon={toggleNeon}/>
@@ -178,12 +178,12 @@ function App() {
             </Box>
             
             <Box>
-            <Info neonMode={neonMode} primaryColor={primaryColor} showInfo={showInfo}/>
+            <Info neonMode={neonMode} darkMode={darkMode} showInfo={showInfo}/>
             </Box>
             </Suspense>
         </div>
     </ThemeProvider>
-  );
+    );
 }
 
 export default App;

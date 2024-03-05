@@ -4,17 +4,33 @@ import { Box, Grid, Paper, Link, Typography } from '@mui/material';
 import { SiMaterialui } from 'react-icons/si'
 import { MdOutlineColorLens } from 'react-icons/md'
 import { GiBouncingSpring, GiPerspectiveDiceSixFacesRandom } from 'react-icons/gi';
-import { FaReact, FaFont } from 'react-icons/fa'
-const Info = ({ neonMode, showInfo }) => {
+import { FaReact, FaFont, FaGithub, FaRegStar } from 'react-icons/fa'
+const Info = ({ neonMode, darkMode, showInfo }) => {
     
     const classes = useStyles();
 
     return (
         
         showInfo ? (
-        <Grid container justifyContent={'center'}>
+        <Box>
+        <Grid container justifyContent={'center'} sx={{overflowY: 'auto', overflowX: 'hidden',
+        '::-webkit-scrollbar': {
+            width: '16px'
+        }, '::-webkit-scrollbar-track': {
+            borderRadius: '8px',
+            backgroundColor: 'secondary.light',
+            border: '1px solid secondary.main',
+            marginTop: '40px'
+        },
+        '::-webkit-scrollbar-thumb': {
+            borderRadius: '8px',
+            border: '3px solid transparent',
+            backgroundClip: 'content-box',
+            backgroundColor: 'secondary.main',
+        }
+        }} height={'330px'}>
             
-            <Paper component={Grid} item elevation={8} order={{ xs: 2, sm: 1, md: 1 }}
+            <Paper component={Grid} item elevation={8} order={{ xs: 2, sm: 2, md: 1, lg: 0 }} 
                 className={`${classes.paper} ${neonMode ? classes.neonBox : null}`} 
                 display='flex' flexDirection='column' justifyContent='center'>
                 
@@ -80,26 +96,25 @@ const Info = ({ neonMode, showInfo }) => {
                 </Link>
             </Paper>
 
-            <Paper component={Grid} item elevation={8} order={{ xs: 1, sm: 3, md: 2 }}
+            <Paper component={Grid} item elevation={8} order={{ xs: 0, sm: 0, md: 1, lg: 1}}
                 className={`${classes.paper} ${neonMode ? classes.neonBox : null}`} 
                 display='flex' justifyContent='center' alignItems='center' flexDirection={'column'}>
                 
-                <Link mt={2} href='https://reactjs.org/' target="_blank" rel="noreferrer" underline='hover' color='#61dafb'
-                     position={'relative'}>
+                <Link mt={2} href='https://reactjs.org/' target="_blank" rel="noreferrer" underline='hover' position={'relative'} color={'#61dafb'}>
                     <Typography variant='caption' color='secondary' position={'absolute'} fontWeight={'bold'} bottom={35} left={6}>
                         Built with
                     </Typography>
                     <Typography className={neonMode ? classes.neonReact : null} color={'#61dafb'}
-                        fontSize={28} fontWeight={'bold'} fontFamily={'sans-serif'} 
-                        display='flex' alignItems='center' gap={1}>
-                        <FaReact className={classes.spin} />
+                        fontWeight={'bold'} 
+                        display='flex' alignItems='center' gap={1} variant='h4'>
+                        <FaReact className={`${classes.spin}`} />
                         React 
                     </Typography>
                 </Link>
 
             </Paper>
             
-            <Paper component={Grid} item elevation={8} order={{xs: 3, sm: 2, md: 3 }}
+            <Paper component={Grid} item elevation={8} order={{xs: 3, sm: 3, md: 3, lg: 3 }}
                 className={`${classes.paper} ${neonMode ? classes.neonBox : null}`} 
                 display='flex' flexDirection='column' justifyContent='center'>
                 
@@ -124,8 +139,35 @@ const Info = ({ neonMode, showInfo }) => {
                 </Link>
 
             </Paper>
+            <Paper component={Box} elevation={8}  order={{ xs: 1, sm: 1, md: 3, lg: 2 }} maxWidth={'800px'}
+                className={`${classes.paper} ${neonMode ? classes.neonBox : null}`} 
+                display='flex' justifyContent='center' alignItems='center' flexDirection={'column'}>
+                
+                <Typography variant='caption' color='secondary' fontWeight={'bold'} >
+                        If you like this app,
+                    </Typography>
+                    <Typography variant='caption' color='secondary' fontWeight={'bold'} >
+                        check out the repository
+                    </Typography>
+                    <Typography variant='caption' color='secondary' fontWeight={'bold'} gap={1} display={'flex'} alignItems={'center'}>
+                        and click the star! <FaRegStar style={{marginBottom: '2px'}} fontSize={'16px'} className={neonMode ? classes.neonStar : null} color='gold'/>
+                    </Typography>
 
-        </Grid> 
+                <Link href='https://github.com/jjblek/neon-type/' target="_blank" rel="noreferrer" underline='hover' color='primary' position={'relative'}>
+                    <Box gap={0.8} display='flex' alignItems='center'>
+                        
+                        <FaGithub color={darkMode ? '#fff' : '#555'} style={{marginTop: '3px'}}/>
+
+                        <Typography className={neonMode ? classes.neonText : null} fontWeight={'bold'}>
+                            jjblek/neon-type
+                        </Typography>
+                        
+                    </Box>
+                </Link>
+
+            </Paper>
+        </Grid></Box>
+    
         ) : null
         
     )

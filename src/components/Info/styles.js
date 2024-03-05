@@ -32,6 +32,7 @@ export default makeStyles((theme) => ({
             textShadow: `0 0 24px ${theme.palette.primary.main}`,
         },
     },
+    
     neonReact: {
         filter: 'drop-shadow(0px 0px 2px #bbeffd)',
         textShadow: `0px 0px 16px #61dafb`,
@@ -39,6 +40,11 @@ export default makeStyles((theme) => ({
             textShadow: `0 0 24px #61dafb`,
         },
     },
+    
+    neonStar: {
+        filter: `drop-shadow(0px 0px 2px gold)`,
+    },
+
     spin: {
         animation: '$spinR 20s linear infinite'
     },  

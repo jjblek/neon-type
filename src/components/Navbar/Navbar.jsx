@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
-import { styled, AppBar, Toolbar, IconButton, Box, Typography, Grid, Paper, Grow, Modal, Button } from '@mui/material'
-import { MdOutlineKeyboard, MdCircle, MdBrightness4, MdBrightness7 } from 'react-icons/md';
+import { AppBar, Toolbar, IconButton, Box, Typography, Grid, Paper, Grow, Modal, Button } from '@mui/material'
+import { MdCircle, MdBrightness4, MdBrightness7 } from 'react-icons/md';
 import { RiDragMoveFill } from 'react-icons/ri'
 import useStyles from './styles';
 import { GiInkSwirl } from 'react-icons/gi';
 import { HexColorPicker } from "react-colorful";
 import Draggable from 'react-draggable';
-const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, toggleNeon} ) => {
+const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, toggleNeon, inputFocus, setInputFocus} ) => {
     
     const classes = useStyles();
     const presetColors = [
@@ -15,17 +15,15 @@ const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, tog
 
     const [open, setOpen] = useState(false);
     const [color, setColor] = useState(primaryColor);
-    const CustomButton = styled(Button)({
-        
-        textTransform: 'none',
-        borderColor: primaryColor,
-        '&:hover': {
-            borderColor: 'primary.main',
-            boxShadow: `0 0 5px ${primaryColor}`,
-            border: '2px solid',
-            
-        },
-    });
+
+    const handleOpen = () => {
+        setOpen(true);
+        setInputFocus(false);
+    }
+    const handleClose = () => {
+        setOpen(false);
+        setInputFocus(true);
+    }
 
     const nodeRef = React.useRef(null);
     return (
@@ -37,24 +35,34 @@ const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, tog
                 <Grid container display={'flex'} flexDirection={'row'} justifyContent={'space-between'} alignItems='center'>
                     
                     <Box display={'flex'} alignItems={'center'} gap={1} ml={3}>
-                        <Typography display={'flex'} color='secondary' fontSize={'32px'} sx={{display: {xs: 'none', sm: 'flex'}}}>
-                        <MdOutlineKeyboard/>
-                        </Typography>
                         <Typography className={neonMode ? classes.neon : null} variant='h1' 
-                                color={neonMode ? 'primary.light' : 'primary.main'} fontWeight={'bold'}>
+                                color={neonMode ? 'white' : 'primary.main'}>
                                 NeonType
                         </Typography> 
                     </Box>
                     
-                    <Box display={'flex'} position={'absolute'} right={0} mr={3} sx={{gap: {xs: 0, sm: 2, md: 3}}}>
+                    <Box display={'flex'} position={'absolute'} right={0} mr={3} sx={{gap: {xs: 1, sm: 2, md: 3}}} alignItems={'center'}>
                         
-                        <CustomButton aria-label="icon-button-select-color" onClick={toggleNeon} className={neonMode ? classes.neon : null}>
-                            <Typography color={neonMode ? 'primary.light' : 'primary.main'} fontSize={16} fontWeight={'bold'}>
-                                {neonMode ? 'neOff' : 'neOn'}
+                        <Button size='small' aria-label="icon-button-select-color" onClick={toggleNeon} className={neonMode ? classes.neon : null} 
+                            sx={{
+                                height: '35px',
+                                textTransform: 'none',
+                                borderColor: 'white',
+                                '&:hover': {
+                                    borderColor: 'primary.main',
+                                    boxShadow: `0 1px 8px ${primaryColor}`,
+                                    border: '2px solid white',
+                                    
+                                },
+                               
+                            }}
+                        >
+                            <Typography color={neonMode ? 'white' : 'primary.main'}  fontWeight={'bold'}>
+                                {neonMode ? 'neoff' : 'neon'}
                             </Typography>
-                        </CustomButton>
+                        </Button>
 
-                        <IconButton  aria-label="icon-button-select-color" onClick={() => setOpen(true)}>
+                        <IconButton  aria-label="icon-button-select-color" onClick={handleOpen}>
                             <MdCircle className={classes.colorIcon}/>
                             <Box className={neonMode ? classes.neon : null} 
                                 color={neonMode ? 'primary.light' : 'primary.main'} 
@@ -66,7 +74,7 @@ const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, tog
                         <Modal
                             open={open}
                             disableScrollLock
-                            onClose={() => setOpen(false)}
+                            onClose={handleClose}
                             aria-labelledby="color-selector"
                             aria-describedby="select-color-theme">
                             <Grow in={open}

@@ -5,6 +5,7 @@
   "dependencies": {
     "@emotion/react": "^11.7.1",
     "@emotion/styled": "^11.6.0",
+    "@fontsource-variable/tilt-neon": "^5.0.5",
     "@fontsource/quicksand": "^4.5.1",
     "@fontsource/sacramento": "^4.5.0",
     "@mui/material": "^5.2.5",

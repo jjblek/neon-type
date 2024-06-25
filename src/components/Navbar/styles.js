@@ -12,6 +12,7 @@ export default makeStyles((theme) => ({
             width: `calc(100% - ${drawerWidth}px)`,
             marginLeft: drawerWidth,
         },
+        
     },
     icon: {
         marginLeft: 10,
@@ -31,8 +32,8 @@ export default makeStyles((theme) => ({
     colorIcons: {
         width: 30, 
         height: 30,
-       
     },
+
     colorIcon: {
         fontSize: 10,
         position: 'absolute',
@@ -40,12 +41,14 @@ export default makeStyles((theme) => ({
         right: 15,
 
     },
+
     swatches: {
         display: 'flex',
         justifyContent: 'center',
         padding: '12px',
         flexWrap: 'wrap',
-      },
+    },
+
     swatch: {
         width: '24px',
         height: '24px',
@@ -55,10 +58,12 @@ export default makeStyles((theme) => ({
         borderRadius: '4px',
         cursor: 'pointer',
         outline: 'none',
-      },
+    },
+
     cursor: {
         
     },
+
     neon: {
         filter:`drop-shadow(0px 0px 2px ${theme.palette.primary.light})`,
         textShadow: `0px 0px 16px ${theme.palette.primary.main}`,
@@ -66,5 +71,12 @@ export default makeStyles((theme) => ({
             textShadow: `0px 0px 24px ${theme.palette.primary.main}`,
         },
     },
-      
+    neonReact: {
+        filter:`drop-shadow(0px 0px 2px ${theme.palette.primary.light})`,
+        textShadow: `0px 0px 16px ${theme.palette.primary.main}`,
+        '&:hover': {
+            textShadow: `0px 0px 24px ${theme.palette.primary.main}`,
+        },
+    },
+    
 }));

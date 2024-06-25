@@ -5,13 +5,12 @@ import { Box, Typography } from '@mui/material';
 import { createTheme, ThemeProvider, responsiveFontSizes } from '@mui/material/styles';
 import "@fontsource/quicksand";
 import "@fontsource/sacramento";
+import '@fontsource-variable/tilt-neon';
 import { useDebounce } from 'use-debounce';
 const Navbar = lazy(() => import('./components/Navbar/Navbar'));
 const Tester = lazy(() => import('./components/TypingTester/Tester'));
-const Info = lazy(() => import ('./components/Info/Info'));
 
-
-const renderLoader = () => <Typography position={'absolute'} right={'50%'} top={'20%'}>loading . . .</Typography>;
+const renderLoader = () => <Typography variant='h5' color={'secondary.main'} textAlign={'center'} mt={'25%'}>loading...</Typography>;
 
 function App() {
 
@@ -21,7 +20,7 @@ function App() {
     const [neonMode, setNeonMode] = useState(localStorage.getItem('neonMode')==='true');
     const [showInfo, setShowInfo] = useState(false)
     const [debouncedColor] = useDebounce(primaryColor, 500)
-    
+    const [inputFocus, setInputFocus] = useState(true);
     // toggle dark mode
     const toggleDark = () => { setDarkMode(!darkMode) }
     useEffect(() => {
@@ -48,17 +47,17 @@ function App() {
     const newShade = (hexColor, magnitude) => {
         hexColor = hexColor.replace(`#`, ``);
         if (hexColor.length === 6) {
-          const decimalColor = parseInt(hexColor, 16);
-          let r = (decimalColor >> 16) + magnitude;
-          r > 255 && (r = 255);
-          r < 0 && (r = 0);
-          let g = (decimalColor & 0x0000ff) + magnitude;
-          g > 255 && (g = 255);
-          g < 0 && (g = 0);
-          let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
-          b > 255 && (b = 255);
-          b < 0 && (b = 0);
-          return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
+            const decimalColor = parseInt(hexColor, 16);
+            let r = (decimalColor >> 16) + magnitude;
+            r > 255 && (r = 255);
+            r < 0 && (r = 0);
+            let g = (decimalColor & 0x0000ff) + magnitude;
+            g > 255 && (g = 255);
+            g < 0 && (g = 0);
+            let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
+            b > 255 && (b = 255);
+            b < 0 && (b = 0);
+            return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
         } else {
             return hexColor;
         }
@@ -129,26 +128,24 @@ function App() {
         typography: {
             h1: {
                 fontSize: 24,
-                fontFamily: ['Roboto', 'Quicksand'],
-                fontWeight: 'bold',
+                fontFamily: ['Roboto', 'Tilt Neon'],
+                
             },
             h2: {
                 fontSize: 48,
-                fontFamily: ['Roboto', 'Quicksand'],
-                fontWeight: 'bold',
+                fontFamily: ['Roboto', 'Tilt Neon'],
+                
             },
             h3: {
                 fontSize: 32,
-                fontFamily: ['Roboto', 'Quicksand'],
-                fontWeight: 'bold',
-                filter:`drop-shadow(2px 2px 2px #424242)`,
+                fontFamily: ['Roboto', 'Tilt Neon'],
             },
             h4: {
-                fontFamily: ['Roboto', 'Quicksand'],
+                fontFamily: ['Roboto', 'Tilt Neon'],
                 fontSize: 32,
             },
             h5: {
-                fontFamily: ['Roboto', 'Quicksand'],
+                fontFamily: ['Roboto', 'Tilt Neon'],
             },
             h6: {
                 fontFamily: ['Roboto', 'Quicksand'],
@@ -170,18 +167,20 @@ function App() {
     return (
     <ThemeProvider theme={responsiveFontSizes(theme)}>
         <CssBaseline enableColorScheme/>
-        <div>
-        <Suspense fallback={renderLoader()}>
-            <Navbar toggleDark={toggleDark} darkMode={darkMode} primaryColor={primaryColor} toggleColor={toggleColor} newShade={newShade} neonMode={neonMode} toggleNeon={toggleNeon}/>
-            <Box>
-            <Tester primaryColor={primaryColor} newShade={newShade} neonMode={neonMode} showInfo={showInfo} setShowInfo={setShowInfo}/>
-            </Box>
-            
-            <Box>
-            <Info neonMode={neonMode} darkMode={darkMode} showInfo={showInfo}/>
-            </Box>
+        <Box height={'100vh'} display={'flex'} flexDirection={'column'}>
+            <Suspense fallback={renderLoader()}>
+                <Navbar primaryColor={primaryColor} toggleColor={toggleColor} newShade={newShade} 
+                    toggleDark={toggleDark} darkMode={darkMode} 
+                    neonMode={neonMode} toggleNeon={toggleNeon}
+                    inputFocus={inputFocus} setInputFocus={setInputFocus}
+                />
+                
+                <Tester primaryColor={primaryColor} newShade={newShade} neonMode={neonMode} 
+                    inputFocus={inputFocus} setInputFocus={setInputFocus}
+                    showInfo={showInfo} setShowInfo={setShowInfo}
+                />
             </Suspense>
-        </div>
+        </Box>
     </ThemeProvider>
     );
 }

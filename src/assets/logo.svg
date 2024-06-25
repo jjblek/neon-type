@@ -1,0 +1,48 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+    <g>
+        <title>Layer 1</title>
+        <rect stroke="#000" id="svg_55" height="343" width="665.66674" y="128.5" x="67.16663" fill="#ffffff"/>
+        <rect stroke="#000" width="0" height="0" fill="#ffffff" opacity="NaN" x="406.11304" y="302.41879" id="svg_12"/>
+        <rect stroke="#000" width="0" height="0" fill="#ffffff" opacity="NaN" x="406.11304" y="283.20494" id="svg_13"/>
+        <line stroke="#000" fill="none" opacity="NaN" x1="406.11304" y1="268.60242" x2="406.11304" y2="268.60242" id="svg_14"/>
+        <line stroke="#000" fill="none" opacity="NaN" x1="406.11304" y1="346.22637" x2="406.11304" y2="346.22637" id="svg_15"/>
+        <rect stroke="#000" id="svg_2" height="67.63275" width="505.28682" y="368.51444" x="147.35658" fill="#000000"/>
+        <g id="svg_145">
+            <rect stroke="#000" id="svg_135" height="48.4189" width="46.60046" y="168.79055" x="346.25575" fill="#66bb6a"/>
+            <rect stroke="#000" id="svg_136" height="48.4189" width="46.60046" y="168.79055" x="289.61077" fill="#26a69a"/>
+            <rect stroke="#000" id="svg_137" height="48.4189" width="46.60046" y="168.79055" x="232.82069" fill="#26c6da"/>
+            <rect stroke="#000" id="svg_138" height="48.4189" width="46.60046" y="168.79055" x="172.9632" fill="#42a5f5"/>
+            <rect stroke="#000" id="svg_139" height="48.4189" width="46.60046" y="168.79055" x="117.20605" fill="#7e57c2"/>
+            <rect stroke="#000" id="svg_140" height="48.4189" width="46.60046" y="168.79055" x="636.19349" fill="#ec407a"/>
+            <rect stroke="#000" id="svg_141" height="48.4189" width="46.60046" y="168.79055" x="579.54852" fill="#c62828"/>
+            <rect stroke="#000" id="svg_142" height="48.4189" width="46.60046" y="168.79055" x="522.75843" fill="#ef5350"/>
+            <rect stroke="#000" id="svg_143" height="48.4189" width="46.60046" y="168.79055" x="462.90094" fill="#ffa726"/>
+            <rect stroke="#000" id="svg_144" height="48.4189" width="46.60046" y="168.79055" x="406.1438" fill="#ffca28"/>
+        </g>
+        <g id="svg_167">
+            <rect stroke="#000" id="svg_157" height="48.4189" width="46.60046" y="232.79054" x="346.25575" fill="#66bb6a"/>
+            <rect stroke="#000" id="svg_158" height="48.4189" width="46.60046" y="232.79054" x="289.61077" fill="#26a69a"/>
+            <rect stroke="#000" id="svg_159" height="48.4189" width="46.60046" y="232.79054" x="232.82069" fill="#26c6da"/>
+            <rect stroke="#000" id="svg_160" height="48.4189" width="46.60046" y="232.79054" x="172.9632" fill="#42a5f5"/>
+            <rect stroke="#000" id="svg_161" height="48.4189" width="46.60046" y="232.79054" x="117.20605" fill="#7e57c2"/>
+            <rect stroke="#000" id="svg_162" height="48.4189" width="46.60046" y="232.79054" x="636.19349" fill="#ec407a"/>
+            <rect stroke="#000" id="svg_163" height="48.4189" width="46.60046" y="232.79054" x="579.54852" fill="#c62828"/>
+            <rect stroke="#000" id="svg_164" height="48.4189" width="46.60046" y="232.79054" x="522.75843" fill="#ef5350"/>
+            <rect stroke="#000" id="svg_165" height="48.4189" width="46.60046" y="232.79054" x="462.90094" fill="#ffa726"/>
+            <rect stroke="#000" id="svg_166" height="48.4189" width="46.60046" y="232.79054" x="406.1438" fill="#ffca28"/>
+        </g>
+        <g id="svg_156">
+            <rect stroke="#000" id="svg_146" height="48.4189" width="46.60046" y="298.66744" x="346.25575" fill="#66bb6a"/>
+            <rect stroke="#000" id="svg_147" height="48.4189" width="46.60046" y="298.66744" x="289.61077" fill="#26a69a"/>
+            <rect stroke="#000" id="svg_148" height="48.4189" width="46.60046" y="298.66744" x="232.82069" fill="#26c6da"/>
+            <rect stroke="#000" id="svg_149" height="48.4189" width="46.60046" y="298.66744" x="172.9632" fill="#42a5f5"/>
+            <rect stroke="#000" id="svg_150" height="48.4189" width="46.60046" y="298.66744" x="117.20605" fill="#7e57c2"/>
+            <rect stroke="#000" id="svg_151" height="48.4189" width="46.60046" y="298.66744" x="636.19349" fill="#ec407a"/>
+            <rect stroke="#000" id="svg_152" height="48.4189" width="46.60046" y="298.66744" x="579.54852" fill="#c62828"/>
+            <rect stroke="#000" id="svg_153" height="48.4189" width="46.60046" y="298.66744" x="522.75843" fill="#ef5350"/>
+            <rect stroke="#000" id="svg_154" height="48.4189" width="46.60046" y="298.66744" x="462.90094" fill="#ffa726"/>
+            <rect stroke="#000" id="svg_155" height="48.4189" width="46.60046" y="298.66744" x="406.1438" fill="#ffca28"/>
+        </g>
+    </g>
+
+</svg>

@@ -1,12 +1,23 @@
 import React, { useState, useEffect, useRef } from 'react';
 import randomWords from 'random-words';
-import { Card, CardContent, CardActions, CardHeader, Box, IconButton, Typography, TextField, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import { MdPlayArrow, MdCancel, MdReplay, MdTimer, MdTimerOff, MdInfo } from 'react-icons/md';
-import useStyles from './styles';
+import { Card, CardContent, CardActions, CardHeader, Box } from '@mui/material';
+
+import WordAmountSelection from './components/Buttons/WordAmountSelection';
+import Links from './components/Links';
+import PlayButton from './components/Buttons/PlayButton';
+import TypingAnalysis from './components/TypingAnalysis/TypingAnalysis';
+import Words from './components/Words/Words';
+import TimerButton from './components/Buttons/TimerButton';
+import CancelButton from './components/Buttons/CancelButton';
+import TypingField from './components/Words/TypingField';
+import Timer from './components/Words/Timer';
+import WelcomePrompt from './components/Words/WelcomePrompt';
+
+import useStyles from './components/Words/styles';
 //const TIME = [15, 30, 60, 120]
 const MINUTE = 60
 
-const Tester = ({ neonMode, showInfo, setShowInfo }) => {
+const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
     
     const [randWords, setRandWords] = useState([])
     const [words, setWords] = useState([])
@@ -23,6 +34,7 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     const [totalChar, setTotalChar] = useState(0)
     const [showTimer, setShowTimer] = useState(true)
     const textInput = useRef(null)
+    
     const classes = useStyles();
 
     // on number of words update
@@ -57,26 +69,27 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
         }
     }, [status])
 
-
-    function generateRandomWords(num) {
-        return new Array(num).fill(null).map(() => randomWords())
-    }
-
-    function generateWordArray(randWords) {
+    // generate random words
+    function generateRandomWords(num) { return new Array(num).fill(null).map(() => randomWords()) }
+    
+    // generate an array of word objects
+    function generateWordArray(words) {
         
-        const wordArray = randWords.map((word) => {
+        const wordArray = words.map((word) => {
     
             return {
-                isCorrect: false,
-                characters: Array.from(word).map((char) => ({ char, correct: 0 })),
+                isValid: false, // word validation
+                characters: Array.from(word).map((char) => ({ 
+                    char,
+                    isValid: 0 // character validation
+                })),
             };
         });
     
-        // Use the newArrays as needed, for example, you can log it
         return wordArray;
     }
 
-    // initialize start typing
+    // initialize typing test
     function start() {
         setRandWords(generateRandomWords(numWords))
         setCurrWordIndex(0)
@@ -90,350 +103,266 @@ const Tester = ({ neonMode, showInfo, setShowInfo }) => {
     }
 
     function handleInput({keyCode, key}) {
-        if (keyCode === 9) return // tab; do nothing
-        if (keyCode === 13) return handleRestart() // enter
+
+        const word = words[currWordIndex].characters;
         
-        if (keyCode === 32) { // space bar 
-            if (currCharIndex === 0) return
-            // if current character index is shorter than word
-            else if (currCharIndex < words[currWordIndex].characters.length) {
+        // INPUT TYPE: KEY (a-z, 0-9, operators, punctuation, etc.)
+        if ((keyCode >= 48 && keyCode <= 90) || (keyCode >=106 && keyCode <= 111) || (keyCode >= 186 && keyCode <= 222)) {
+            // if character index is greater than or equal to word length
+            if (currCharIndex >= word.length) {
+                // current input does not match word, increment character index
+                setCurrCharIndex(currCharIndex + 1)
+            }
+            // else update character highlight
+            else {
+                // copy words to update highlight state
+                const updatedHighlight = [...words];
+
+                // check if character at current index matches the input character
+                const doesItMatch = word[currCharIndex].char === key;
+
+                // update highlight accordingly, 1 represents correct and -1 represents incorrect
+                updatedHighlight[currWordIndex].characters[currCharIndex].isValid = doesItMatch ? 1 : -1;
+
+                // update words 
+                setWords(updatedHighlight);
+
                 // increment character index
-                const updatedWords = [...words]
-                updatedWords[currWordIndex].isCorrect = false
-                setWords(updatedWords)
-                // TODO
+                setCurrCharIndex(currCharIndex + 1)
+            }
+
+            // if the final word is reached and it is equal to current input
+            if (currWordIndex === randWords.length-1 && randWords[currWordIndex] === currInput.trim() + key) {
+                // end the typing test
+                setTimeTaken(MINUTE - countDown)
+                setStatus('finished')
+            }
+        }
+
+        // INPUT TYPE: SPACE BAR 
+        else if (keyCode === 32) {
+            if (currCharIndex === 0 && currWordIndex === 0) handleRestart();
+            // if current character index is shorter than word length
+            else if (currCharIndex < word.length) {
+                
+                // copy words to update validation state
+                const validatedWords = [...words]
+
+                // current input is shorter than word, set word validation state to incorrect
+                validatedWords[currWordIndex].isValid = false
+
+                // update character validation state for all proceeding characters to incorrect (-1)
+                for (let i = currCharIndex; i < word.length; i++) {
+                    validatedWords[currWordIndex].characters[i].isValid = -1;
+                }
+                setWords(validatedWords)
+                
+                // copy current input stack
                 const stack = [...inputStack]
                 
-                stack[currWordIndex] = currInput.trim()
+                // push current input to the stack
+                stack[currWordIndex] = currInput.trim() + ' '
                 setInputStack(stack)
                 
+                // increment current word index
                 setCurrWordIndex(currWordIndex + 1)
+                
+                // reset character index and input
                 setCurrCharIndex(0)
                 setCurrInput("")
+
+                // increment count of incorrect words
                 setIncorrect(incorrect + 1)
             } 
-            // if current character index is equal to word
-            else if (currCharIndex === words[currWordIndex].characters.length) {
-                // check if it is a match
-                if (randWords[currWordIndex] === currInput.trim()) {
-                    // increment word index if match
-                    
-                    const updatedWords = [...words]
-                    updatedWords[currWordIndex].isCorrect = true
-                    setWords(updatedWords)
 
+            // if current character index is equal to word length
+            else if (currCharIndex === word.length) {
+
+                // if word at the current index matches current input
+                if (randWords[currWordIndex] === currInput.trim()) {
+                    
+                    // copy words to update validation state
+                    const validatedWords = [...words]
+
+                    // set word validation state to correct
+                    validatedWords[currWordIndex].isValid = true
+                    setWords(validatedWords)
+
+                    // add current input to input stack
                     const stack = [...inputStack]
-                    stack[currWordIndex] = currInput.trim()
+                    stack[currWordIndex] = currInput.trim() + ' '
                     setInputStack(stack)
                     
-                    setCorrect(correct + 1)
+                    // update total character count
                     setTotalChar(totalChar + currCharIndex + 2)
-                    setCurrWordIndex(currWordIndex + 1)
-                    setCurrInput("")
-                    setCurrCharIndex(0)
 
+                    // increment word index
+                    setCurrWordIndex(currWordIndex + 1)
+
+                    // reset character index and current input
+                    setCurrCharIndex(0)
+                    setCurrInput("")
+
+                    // increment count of correct words
+                    setCorrect(correct + 1)
                 } 
-                // if it is not a match, increment character index
-                else setCurrCharIndex(currCharIndex+1)
+
+                // if character index is equal to word length but is not a match
+                else setCurrCharIndex(currCharIndex + 1)
                 
             }
+            // else current character index is longer than word length, increment character index
             else setCurrCharIndex(currCharIndex + 1)
             
         } 
-        else if (keyCode === 8) { // backspace
+
+        // INPUT TYPE: BACKSPACE
+        else if (keyCode === 8) {
+            // if the current character index is greater than 0
             if (currCharIndex > 0) {
-                if (currCharIndex > words[currWordIndex].characters.length) {
-                    setCurrCharIndex(currCharIndex - 1)
+
+                // decrement current character index
+                if (currCharIndex > word.length) setCurrCharIndex(currCharIndex - 1)
                 
-                }
+                // else remove character highlight validation from previous index
                 else {
                     const updatedHighlight = [...words];
-                    updatedHighlight[currWordIndex].characters[currCharIndex-1].correct = 0;
+                    updatedHighlight[currWordIndex].characters[currCharIndex-1].isValid = 0;
                     setWords(updatedHighlight);
-                
                     setCurrCharIndex(currCharIndex - 1)
-                    
                 }
-                
-            } else { // TODO 
-                if (currWordIndex > 0 && words[currWordIndex-1].isCorrect === false) {
-                    
-                    setCurrInput(inputStack[currWordIndex-1])
-                    
-                    setCurrCharIndex(inputStack[currWordIndex - 1].length-1)
-                    
-                    
+            } 
+            // else current character index is less than or equal to zero
+            else { // TODO 
+                // if current word index is greater than zero (not the first word), return to previous word
+                if (currWordIndex > 0) {
+
+                    // set current input and index to previous input and index
+                    const stack = [...inputStack]
+                    const prevInput = stack[currWordIndex - 1]
+                    setCurrInput(prevInput)
+                    setCurrCharIndex(prevInput.length - 1)
+
+                    // decrement correct/incorrect count
+                    if (words[currWordIndex - 1].isValid === true) {
+                        const updatedWords = [...words]
+                        updatedWords[currWordIndex].isValid = false
+                        setWords(updatedWords)
+                        setCorrect(correct - 1)
+                    } else {
+                        const updatedHighlight = [...words];
+                        for (let i = prevInput.length - 1; i < words[currWordIndex-1].characters.length; i++) {
+                            updatedHighlight[currWordIndex-1].characters[i].isValid = 0;
+                        }
+                        
+                        setWords(updatedHighlight);
+                        setIncorrect(incorrect - 1)
+                    }
+
+                    // decrement current word index
                     setCurrWordIndex(currWordIndex - 1)
-                    setIncorrect(incorrect-1)
+
+                    // pop previous input from stack
+                    stack.pop();
+                    setInputStack(stack)
                 }
-                
             }
-            
-        } 
-        
-        else { // key
-            if (currCharIndex >= words[currWordIndex].characters.length) {
-                setCurrCharIndex(currCharIndex + 1)
-            }
-            else {
-                const updatedHighlight = [...words];
-                const doesItMatch = words[currWordIndex].characters[currCharIndex].char === key;
-                updatedHighlight[currWordIndex].characters[currCharIndex].correct = doesItMatch ? 1 : -1;
-                setWords(updatedHighlight);
-                
-                setCurrCharIndex(currCharIndex+1)
-            }
-            
         }
         
-    }
-
-    const handleChange = (e) => {
-        setCurrInput(e.target.value)
+        // INPUT TYPE: TAB
+        else if (keyCode === 9) return // do nothing
         
-        if (correct + incorrect === numWords) {
-            if (incorrect === numWords) {
-                setIncorrect(0)
-            }
+        // INPUT TYPE: ENTER
+        else if (keyCode === 13) { 
             setTimeTaken(MINUTE - countDown)
             setStatus('finished')
+            return
         }
-    
     }
 
+    // handle input change
+    const handleChange = (e) => {
+        setCurrInput(e.target.value)
+    }
+
+    // handle restart test
     const handleRestart = () => {
         setCurrInput("")
         setCountDown(MINUTE)
         start()
-        
     }
     
+    // handle cancel test
     const handleCancel = () => {
         setCurrInput("")
         setCountDown(MINUTE)
         start()
         setStatus('waiting')
-        
     }
-
-    const handleWords = (event, value) => {
-        if (value !== null) setNumWords(value)
-        
-    }
-
+    
     return (
-        <Card variant='elevation'>
-            <CardContent>
+        <Card variant='elevation' sx={{height: '100%'}}>
+            
+            <CardContent sx={{height: '90%', display: 'flex', flexDirection: 'column', justifyContent: 'space-between'}}>
+            
                 <CardHeader
                     title="Typing Speed Test" 
                     titleTypographyProps={{
                         className: neonMode ? classes.neon : null,
-                        color: neonMode ? 'primary.light' : 'primary.main',
+                        color: neonMode ? 'white' : 'primary.main',
                         fontWeight: 'bold'
                     }}
                     subheader="by jjblek" 
-                    subheaderTypographyProps={{className: classes.subheader}} 
+                    subheaderTypographyProps={{color: 'secondary.main', fontSize: '12px'}} 
                     avatar={
-                        <Box>
-                            {status !== 'waiting' ?
-                                <IconButton onClick={handleCancel}>
-                                    <MdCancel/>
-                                </IconButton>
-                                : null
-                            }
-                        </Box>  
+                        <CancelButton status={status} handleCancel={handleCancel}/>
                     }
                     action={
                         (status === 'initialized' || status === 'started') ?
-                            <Box display={'flex'} alignItems={'center'}>
-                                {showTimer ? 
-                                    <IconButton aria-label="hide timer" onClick={()=>setShowTimer(false)}>
-                                        <MdTimer/>
-                                    </IconButton> 
-                                    : 
-                                    <IconButton aria-label="show timer" onClick={()=>setShowTimer(true)}>
-                                        <MdTimerOff/>
-                                    </IconButton>
-                                }
-                            </Box> 
+                            <TimerButton showTimer={showTimer} setShowTimer={setShowTimer}/>
                         : null
                     }
                 />
-                {status === 'waiting' ? 
-                <Box height={'125px'} textAlign={'center'}>
-                    <Typography variant='h5' marginTop={'75px'} >
-                        
-                        Welcome to <span color='primary.main' className={neonMode ? classes.neon : classes.text}> NeonType</span>, click play to start typing!
-                    </Typography>
-                </Box> : null}
+
+                {status === 'waiting' ? <WelcomePrompt neonMode={neonMode}/> : null}
+
                 {(status === 'initialized' || status === 'started') ?
                     
                     <Box display={'flex'} flexDirection={'column'} alignItems={'center'}>
                         
-                        <Box display={'flex'} justifyContent={'center'}> 
-                            {showTimer ?
-                                <Typography 
-                                    className={neonMode ? classes.neon : null} 
-                                    color={neonMode ? 'primary.light' : 'primary.main'} 
-                                    variant='h2' fontWeight={'bold'}>
-                                    {countDown}
-                                </Typography> 
-                            : null
-                            }
-                        </Box>
+                        <Timer showTimer={showTimer} countDown={countDown} neonMode={neonMode}/>
 
-                        <Box mb={2}>
-                            <TextField label='Start Typing' aria-label='Enter to Restart'
-                                inputRef={textInput} value={currInput}
-                                onInput={()=> setStatus('started')} onKeyDown={handleInput} onChange={handleChange}
-                                className={classes.textField} autoFocus variant="standard"
-                                InputLabelProps={{style: { fontSize: 14 },}}
-                                inputProps={{style: {textAlign: 'center',}}}
-                                helperText={
-                                    <Typography 
-                                        color={neonMode ? 'primary.light' : 'primary.main'} 
-                                        textAlign={'center'}
-                                        variant="caption" 
-                                        className={neonMode ? classes.neon : null}
-                                        display="block">
-                                        Press Enter to Restart
-                                    </Typography>
-                                }
-                                InputProps={{className: neonMode ? classes.neon : null,
-                                    style: {
-                                        color: neonMode ? 'primary.light' : 'primary.main',
-                                        fontSize: 20,
-                                        fontWeight: 'bold',
-                                        textAlign: 'center',
-                                    },
-                                    autoComplete: 'off',
-                                    autoFocus: true
-                                }}>
-                            </TextField>
-                        </Box>
-                        <Box maxWidth={'800px'} >
-                        <Typography variant='h6' color='secondary' mb={5} letterSpacing={'1.3px'}>
-                            {words.map((word, wordIndex) => (
-                                <span key={wordIndex} style={{ display: 'inline-block' }}>
-                                    {word.characters.map((characterArray, charIndex) => (
-                                        <span style={{ display: 'inline-block' }}
-                                            key={charIndex}
-                                            className={characterArray.correct === 1 ? `${classes.success} ${neonMode && classes.neonSuccess}` : (characterArray.correct === -1 ? `${classes.warning} ${neonMode && classes.neonWarning}` : '')}
-                                        >
-                                            {currCharIndex === charIndex && currWordIndex === wordIndex && <span className={`${classes.cursor} ${currCharIndex === 0 && currWordIndex === 0 && classes.blink}`}>|</span>}
-                                            {characterArray.char}
-                                            
-                                        </span>
-                                        
-                                    ))}
-                                    
-                                    {currWordIndex === wordIndex && currCharIndex > word.characters.length && (
-                                    <span >
-                                    {currInput.slice(word.characters.length, currCharIndex).split('').map((incorrectChar, i) => (
-                                        <span key={i} className={`${classes.warning} ${neonMode && classes.neonWarning}`}>
-                                            {incorrectChar}
-                                        </span>
-                                    ))}
-                                        <span className={classes.cursor}>|</span>
-                                    </span>
-                                    )}
-                                    {currWordIndex === wordIndex && currCharIndex === word.characters.length && <span className={`${classes.cursor} ${currCharIndex === 0 && currWordIndex === 0 && classes.blink}`}>|</span>}
-                                    {'\u00A0'}
-                                </span>
-                            ))}
-                        </Typography>
-                    </Box>
+                        <TypingField textInput={textInput} currInput={currInput} inputFocus={inputFocus} 
+                            setStatus={setStatus} handleInput={handleInput} handleChange={handleChange}/>
+                        
+                        <Words neonMode={neonMode}
+                            words={words} numWords={numWords} 
+                            currCharIndex={currCharIndex} 
+                            currWordIndex={currWordIndex} 
+                            currInput={currInput} />
                     </Box>
                     : null
                 }
             
                 {status === 'finished' ? 
-                    <Box textAlign={'center'}>
-                        
-                        <Typography variant='h5' color='secondary' fontWeight='normal'>
-                            WPM:{' '}
-                            <Typography display='inline' variant='inherit' color='primary' fontWeight={'bold'}>
-                                {Math.round(((totalChar / 5) - incorrect) / (timeTaken / 60))}
-                            </Typography>
-                        </Typography>
-            
-                        <Typography variant='h6' color='secondary' fontWeight='normal'>
-                            Accuracy:{' '} 
-                            {correct !== 0 ?
-                                <Typography display='inline' variant='inherit' color='primary' fontWeight={'bold'}>
-                                    {Math.round((correct / (correct + incorrect)) * 100)}%
-                                </Typography>
-                                : 
-                                <Typography display='inline' variant='inherit' color='red' fontWeight={'bold'}>
-                                    0%
-                                </Typography>
-                            }
-                        </Typography>
-
-                        <Typography className={neonMode ? classes.neon : null} 
-                            color={neonMode ? 'primary.light' : 'primary.main'} 
-                            variant='caption' fontWeight={'bold'} fontSize={10}>
-                            Tab + Enter to Restart
-                        </Typography>
-
-                    </Box>
+                    <TypingAnalysis neonMode={neonMode}
+                        correct={correct} incorrect={incorrect} 
+                        timeTaken={timeTaken} totalChar={totalChar}/>
                     : null
                 }
             
                 <CardActions disableSpacing>
-                
-                    <Box ml={1}>
-                        {status === 'waiting' ?
-                            <IconButton aria-label="Play" onClick={start}>
-                                <MdPlayArrow/>
-                            </IconButton>
-                            : 
-                            <IconButton aria-label="Replay" onClick={handleRestart}>
-                                <MdReplay/>
-                            </IconButton>
-                        }
-                    </Box>
-                    
-                    <Box ml={'auto'}>
-                        {(status === 'initialized' || status === 'started') ? 
-                            <ToggleButtonGroup
-                                value={numWords} defaultValue={10} exclusive onChange={handleWords}
-                                aria-label="word count select" color='primary'>
-                                
-                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={10} aria-label="10 words" size='large'>
-                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
-                                        10
-                                    </Typography>
-                                </ToggleButton>
 
-                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={25} aria-label="25 words" size='large'>
-                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
-                                        25
-                                    </Typography>
-                                </ToggleButton>
+                    <PlayButton status={status} start={start} handleRestart={handleRestart}/>
 
-                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={50} aria-label="50 words" size='large'>
-                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
-                                        50
-                                    </Typography>
-                                </ToggleButton>
+                    <WordAmountSelection status={status} numWords={numWords} setNumWords={setNumWords} neonMode={neonMode}/>
 
-                                <ToggleButton className={neonMode ? classes.neonToggle : null} value={75} aria-label="100 words" size='large'>
-                                    <Typography variant='body2' fontSize={12} fontWeight={'bold'}>
-                                        75
-                                    </Typography>
-                                </ToggleButton>
-
-                            </ToggleButtonGroup>
-                            : null
-                        }
-                        <Box display={'inline'} ml={2}>
-                        <IconButton onClick={()=>setShowInfo(!showInfo)}><MdInfo/></IconButton>
-                        </Box>
-                    </Box>
-                
                 </CardActions>
+
+                
+
             </CardContent>
+            <Links inputFocus={inputFocus} setInputFocus={setInputFocus} neonMode={neonMode}/>
         </Card>
     )
 }

@@ -144,7 +144,11 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
             if (currCharIndex === 0 && currWordIndex === 0) handleRestart();
             // if current character index is shorter than word length
             else if (currCharIndex < word.length) {
-                
+                if (currWordIndex === words.length - 1) {
+                    // end the typing test
+                    setTimeTaken(MINUTE - countDown)
+                    setStatus('finished')
+                }
                 // copy words to update validation state
                 const validatedWords = [...words]
 
@@ -211,6 +215,41 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
                 else setCurrCharIndex(currCharIndex + 1)
                 
             }
+            else if (currCharIndex > word.length) {
+                if (currWordIndex === words.length - 1) {
+                    // end the typing test
+                    setTimeTaken(MINUTE - countDown)
+                    setStatus('finished')
+                }
+                // copy words to update validation state
+                const validatedWords = [...words]
+
+                // current input is shorter than word, set word validation state to incorrect
+                validatedWords[currWordIndex].isValid = false
+
+                // update character validation state for all proceeding characters to incorrect (-1)
+                for (let i = currCharIndex; i < word.length; i++) {
+                    validatedWords[currWordIndex].characters[i].isValid = -1;
+                }
+                setWords(validatedWords)
+                
+                // copy current input stack
+                const stack = [...inputStack]
+                
+                // push current input to the stack
+                stack[currWordIndex] = currInput.trim() + ' '
+                setInputStack(stack)
+                
+                // increment current word index
+                setCurrWordIndex(currWordIndex + 1)
+                
+                // reset character index and input
+                setCurrCharIndex(0)
+                setCurrInput("")
+
+                // increment count of incorrect words
+                setIncorrect(incorrect + 1)
+            } 
             // else current character index is longer than word length, increment character index
             else setCurrCharIndex(currCharIndex + 1)
             

@@ -3,9 +3,11 @@ import { TextField } from '@mui/material'
 
 // The TypingField component - a hidden text field responsible for handling user input
 const TypingField = ({textInput, currInput, inputFocus, setStatus, handleInput, handleChange}) => {
-
+    const handlePaste = (event) => {
+        event.preventDefault(); // prevent the default paste behavior
+    };
     return (
-        <TextField aria-label='Enter to Restart' sx={{opacity: 1, height: '0px', width: '0px'}}
+        <TextField aria-label='Enter to Restart' onPaste={handlePaste} sx={{opacity: 1, height: '0px', width: '0px'}}
             onBlur={e => (
                 inputFocus === true && e.target.focus()
             )}

@@ -6,7 +6,7 @@ const WordAmountSelection = ({status, numWords, setNumWords, neonMode}) => {
     const handleWords = (event, value) => { if (value !== null) setNumWords(value) }
     const classes = useStyles();
     return (
-        <Box ml={'auto'}>
+        <Box ml={'auto'} mr={1}>
                         {(status === 'initialized' || status === 'started') ? 
                             <ToggleButtonGroup
                                 value={numWords} defaultValue={10} exclusive onChange={handleWords}

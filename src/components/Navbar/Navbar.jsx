@@ -54,7 +54,6 @@ const Navbar = ( {toggleDark, darkMode, primaryColor, toggleColor, neonMode, tog
                                     border: '2px solid white',
                                     
                                 },
-                               
                             }}
                         >
                             <Typography color={neonMode ? 'white' : 'primary.main'}  fontWeight={'bold'}>

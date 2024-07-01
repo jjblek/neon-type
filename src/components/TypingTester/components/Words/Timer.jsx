@@ -6,7 +6,7 @@ import useStyles from './styles';
 const Timer = ({showTimer, countDown, neonMode}) => {
     const classes = useStyles();
     return (
-        <Box display={'flex'} justifyContent={'center'} mt={'16px'} mb='16px'> 
+        <Box display={'flex'} justifyContent={'center'} mb='16px'> 
             {showTimer ?
                 <Typography
                     className={neonMode ? classes.neon : null} 

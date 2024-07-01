@@ -79,6 +79,7 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
     
             return {
                 isValid: false, // word validation
+                excessCharacters: [], // excess characters typed by user
                 characters: Array.from(word).map((char) => ({ 
                     char,
                     isValid: 0 // character validation
@@ -112,6 +113,9 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
             if (currCharIndex >= word.length) {
                 // current input does not match word, increment character index
                 setCurrCharIndex(currCharIndex + 1)
+                const excess = [...words];
+                excess[currWordIndex].excessCharacters.push(key);
+                setWords(excess)
             }
             // else update character highlight
             else {
@@ -223,14 +227,10 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
                 }
                 // copy words to update validation state
                 const validatedWords = [...words]
-
-                // current input is shorter than word, set word validation state to incorrect
+                
+                // current input is longer than word, set word validation state to incorrect
                 validatedWords[currWordIndex].isValid = false
-
-                // update character validation state for all proceeding characters to incorrect (-1)
-                for (let i = currCharIndex; i < word.length; i++) {
-                    validatedWords[currWordIndex].characters[i].isValid = -1;
-                }
+                
                 setWords(validatedWords)
                 
                 // copy current input stack
@@ -249,7 +249,7 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
 
                 // increment count of incorrect words
                 setIncorrect(incorrect + 1)
-            } 
+            }
             // else current character index is longer than word length, increment character index
             else setCurrCharIndex(currCharIndex + 1)
             
@@ -261,12 +261,17 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
             if (currCharIndex > 0) {
 
                 // decrement current character index
-                if (currCharIndex > word.length) setCurrCharIndex(currCharIndex - 1)
+                if (currCharIndex > word.length) {
+                    setCurrCharIndex(currCharIndex - 1)
+                    const excess = [...words];
+                    excess[currWordIndex].excessCharacters.pop();
+                }
                 
                 // else remove character highlight validation from previous index
                 else {
                     const updatedHighlight = [...words];
                     updatedHighlight[currWordIndex].characters[currCharIndex-1].isValid = 0;
+                    
                     setWords(updatedHighlight);
                     setCurrCharIndex(currCharIndex - 1)
                 }
@@ -313,6 +318,7 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
         
         // INPUT TYPE: ENTER
         else if (keyCode === 13) { 
+            if (currWordIndex === 1) setCorrect(0);
             setTimeTaken(MINUTE - countDown)
             setStatus('finished')
             return
@@ -378,7 +384,7 @@ const Tester = ({ neonMode, inputFocus, setInputFocus}) => {
                             words={words} numWords={numWords} 
                             currCharIndex={currCharIndex} 
                             currWordIndex={currWordIndex} 
-                            currInput={currInput} />
+                            />
                     </Box>
                     : null
                 }

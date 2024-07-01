@@ -10,13 +10,22 @@ export default makeStyles((theme) => ({
     },
     
     success: {
-        color: theme.palette.primary.light
+        color: theme.palette.primary.light,
+    
     },
     warning: {
-        color: theme.palette.inverted.main
+        color: theme.palette.inverted.main,
+    
     },
     idle: {
-        color: theme.palette.secondary.main
+        color: theme.palette.secondary.main,
+        letterSpacing: '1.3px',
+        
+        [theme.breakpoints.down('sm')]: {
+            fontSize: '16px',
+            letterSpacing: '0px',
+        },
+        
     },
 
     neonSuccess: {

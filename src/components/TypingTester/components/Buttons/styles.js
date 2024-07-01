@@ -3,6 +3,7 @@ import { makeStyles } from "@mui/styles";
 export default makeStyles((theme) => ({
 
     neonToggle: {
+        width: 'auto',
         "&.Mui-selected, &.Mui-selected:hover": {
             color: theme.palette.primary.light,
             filter: `drop-shadow(0px 2px 2px ${theme.palette.primary.light})`,
